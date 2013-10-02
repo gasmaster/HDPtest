@@ -1,0 +1,22 @@
+<resources>
+
+    <string name="app_name">HDPtest</string>
+    <string name="bluetooth_health_profile_not_available">Bluetooth Health Profile is not available</string>
+    <string name="bluetooth_not_available">Bluetooth is not available</string>
+	<string name="app_registration">App Registration</string>
+	<string name="register">Register App and Device  </string>
+	<string name="unregister">Unregister App and Device</string>
+	<string name="connection_state">Connection State:</string>
+	<string name="connected">CONNECTED</string>
+	<string name="disconnected">DISCONNECTED</string>
+	<string name="status_create_channel">Create channel status: %d</string>
+	<string name="status_destroy_channel">Destroy channel status: %d</string>
+	<string name="status_msg">Status Message</string>
+	<string name="status_reg">App registration status: %d (-1 is Failed, 0 is success)</string>
+	<string name="status_unreg">App unregistration status: %d</string>
+	<string name="read_data">Reading data...</string>
+	<string name="read_data_done">Done with reading data...</string>
+	<string name="example_text">아아아아아아아아아아아아아아아아아</string>
+	<string name="select_device">장치를 선택하세요</string>
+	<string name="ok">OK</string>
+</resources>
