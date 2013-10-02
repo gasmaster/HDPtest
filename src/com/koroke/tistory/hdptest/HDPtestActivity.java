@@ -33,8 +33,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class HDPtestActivity extends Activity {
+	private static final String DTAG = "DEBUG";
 	private static final String TAG = "HDPtestActivity";
+	// 혈압계 장비명.. 
 	private static final String AND_HEART = "A&D BP UA-767PBT-C";
+	
+	
 	//0x1007 - blood pressure meter
 	//0x1008 - body thermometer
 	//0x100f - body weight scale
@@ -50,22 +54,12 @@ public class HDPtestActivity extends Activity {
 	
 	// Bluetooth 관련 참조변수
 	private BluetoothAdapter mBluetoothAdapter; 
-	private BluetoothDevice[] mAllBondedDevices;  // 이미 등록되어 있는경우
-	private BluetoothDevice[] mSearchedDevices;	  // 찾아야 하는 경우
+	private BluetoothDevice[] mAllBondedDevices;  // 이미 등록되있는 블루투스 원격장치목록
 	private BluetoothDevice mDevice;   //원격블루투스장비(의료측정장비)를 표현하는클래스
 	private Resources mRes;  // 어떤식으로 쓰이는지 체크
 	private Messenger mHealthService; // HDPtestService와 통신하기위한 메신저참조변수
 	private boolean mHealthServiceBound; // HDPtestService 의 바인딩상태
 	private int mDeviceIndex = 0;
-	
-	// Dialog 관련 참조변수
-	ProgressDialog scanDeviceDialog;
-	boolean scan_finished = false;
-	
-	// 장치 검색을 통해 얻어온 장치 이름저장변수
-	String[] DeviceList = new String[10];
-	private int found_num = 0;
-	
 	
 	
 	private Handler mIncomingHandler = new Handler(){
@@ -76,10 +70,6 @@ public class HDPtestActivity extends Activity {
 			case HDPtestService.STATUS_HEALTH_APP_REG:
 				mStatusMessage.setText(String.format(
 						mRes.getString(R.string.status_reg), msg.arg1));
-				
-				//mBluetoothAdapter.startDiscovery();
-				//리시버가 받은 결과 값을통해 등록
-				//connectChannel();
 				break;
 			// 애플리케이션을 등록해제
 			case HDPtestService.STATUS_HEALTH_APP_UNREG:
@@ -88,26 +78,25 @@ public class HDPtestActivity extends Activity {
 				break;
 			// Helath Device로부터 데이터 리딩	
 			case HDPtestService.STATUS_READ_DATA:
-				mStatusMessage.setText(mRes.getString(R.string.read_data));
+				mStatusMessage.setText(mRes.getString(R.string.status_read_data));
 				break;
 			// Health Device로부터 방은 데이터 리딩 완료
 			case HDPtestService.STATUS_READ_DATA_DONE:
-				mStatusMessage.setText(mRes.getString(R.string.read_data_done));
+				mStatusMessage.setText(mRes.getString(R.string.status_read_data_done));
 				break;
 			// Health Device와의 채널간 연결완료
 			case HDPtestService.STATUS_CREATE_CHANNEL:
-				Log.d(TAG,"STATUS_CREATE_CHANNEL enabled");
 				mStatusMessage.setText(String.format(mRes.getString(
 						R.string.status_create_channel), 
 						msg.arg1));
-				mConnectIndicator.setText(R.string.connected);
+				mConnectIndicator.setText(R.string.device_connected);
 				break;
 				
 			case HDPtestService.STATUS_DESTROY_CHANNEL:
 				mStatusMessage.setText(String.format(mRes.getString(
 						R.string.status_destroy_channel), 
 						msg.arg1));
-				mConnectIndicator.setText(R.string.disconnected);
+				mConnectIndicator.setText(R.string.device_disconnected);
 				break;
 				
 			case HDPtestService.RECEIVED_SYS:
@@ -165,9 +154,6 @@ public class HDPtestActivity extends Activity {
 				// 앱을등록하고 source data type(혈압계)를 지정한다.
 				sendMessage(HDPtestService.MSG_REG_HEALTH_APP,
 						HEALTH_PROFILE_SOURCE_DATA_TYPE); 
-				mBluetoothAdapter.startDiscovery();
-				
-				
 			}
 		}); // registerAppButton
 		
@@ -194,6 +180,7 @@ public class HDPtestActivity extends Activity {
 			msg.replyTo = mMessenger; // HDPtestService ==> HDPtestActivity
 			mHealthService = new Messenger(service); //HDPtestActivity ==> HDPtestService
 			try{
+				Log.d(DTAG,"Activity:mHealthService.send(msg) MSG_REG_CLIENT 전송");
 				mHealthService.send(msg);
 			}catch(RemoteException e){
 				Log.w(TAG, "Unable to register client to service.");
@@ -271,6 +258,7 @@ public class HDPtestActivity extends Activity {
 	
 	private void initialize(){
 		Intent intent = new Intent(this,HDPtestService.class);
+		Log.d(DTAG,"Activity:initialize() -- startService와bindService호출");
 		startService(intent);
 		bindService(intent,mConnection,Context.BIND_AUTO_CREATE);
 	}
@@ -314,7 +302,6 @@ public class HDPtestActivity extends Activity {
 				Log.i(TAG,"Action found");
 				
 			}else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
-				scan_finished = true;
 				Toast.makeText(getApplicationContext(), 
 						"Discovery is finished", Toast.LENGTH_SHORT).show();
 			
@@ -381,7 +368,7 @@ public class HDPtestActivity extends Activity {
 			int position = getArguments().getInt("position",-1);
 			if(position == -1) position = 0;
 			return new AlertDialog.Builder(getActivity())
-					.setTitle(R.string.select_device)
+					.setTitle(R.string.dialog_select_device)
 					.setPositiveButton(R.string.ok,
 							new DialogInterface.OnClickListener() {
 								

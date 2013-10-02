@@ -30,6 +30,7 @@ public class HDPtestService extends Service {
 
 	// 로그 기록 출력을 위한 tag
 	private static final String TAG = "HDPtestService";
+	private static final String DTAG = "DEBUG";
 	
 	
 	// 블루투스의 반환값을 체크하기 위한 상수
@@ -83,33 +84,38 @@ public class HDPtestService extends Service {
 			// client의 메신저를 등록하여 서비스에서 UI client로 메시지를
 			// 보낼 수 있도록 한다. 
             case MSG_REG_CLIENT:
-                Log.d(TAG, "Activity client registered");
+                Log.d(DTAG,"MSG_REG_CLIENT");
                 mClient = msg.replyTo;
                 break;
                 
             // 등록된 서비스를 등록해제하였을때 클라이언트의 메신저참조삭제
             case MSG_UNREG_CLIENT:
+            	Log.d(DTAG,"MSG_UNREG_CLIENT");
                 mClient = null;
                 break;
                 
             // 블루투스 소스(장비)와 연결된 싱크(앱)을 등록한다.
             case MSG_REG_HEALTH_APP:
+            	Log.d(DTAG,"MSG_REG_HEALTH_APP");
                 registerApp(msg.arg1);
                 break;
                 
             // 블루투스 소스(장비)와 연결되어있는 싱크(앱)을 제거
             case MSG_UNREG_HEALTH_APP:
+            	Log.d(DTAG,"MSG_UNREG_HEALTH_APP");
                 unregisterApp();
                 break;
                 
             // 디바이스와 실제 연결을 수행하여 BluetoothDevice 인스턴스
             // 를 얻는다. 
             case MSG_CONNECT_CHANNEL:
+            	Log.d(DTAG,"MSG_CONNECT_CHANNEL");
                 mDevice = (BluetoothDevice) msg.obj;
                 connectChannel();
                 break;
             // 디바이스와 연결을 끊는다. 
             case MSG_DISCONNECT_CHANNEL:
+            	Log.d(DTAG,"MSG_DISCONNECT_CHANNEL");
                 mDevice = (BluetoothDevice) msg.obj;
                 disconnectChannel();
                 break;
@@ -138,6 +144,7 @@ public class HDPtestService extends Service {
 		// BluetoothAdapter 의 getProfileProxy를 이용하여 proxy object 를 얻어온다.
 		// 얻어온 proxy object 는 2번째 인자로 지정한 callback 핸들러를 통하여 
 		// BluetoothHealth 클래스 참조변수가 참조하여 제어한다.
+		Log.d(DTAG,"service:getProfileProxy()");
 		if(!mBluetoothAdapter.getProfileProxy(this, mBluetoothServiceListener,
 				BluetoothProfile.HEALTH)){
 			Toast.makeText(this,R.string.bluetooth_health_profile_not_available,
@@ -165,6 +172,7 @@ public class HDPtestService extends Service {
 				public void onServiceConnected(int profile, BluetoothProfile proxy) {
 					// TODO Auto-generated method stub
 					if(profile == BluetoothProfile.HEALTH){
+						Log.d(DTAG,"service:onServiceConnected()");
 						mBluetoothHealth = (BluetoothHealth)proxy;
 						if(Log.isLoggable(TAG, Log.DEBUG))
 							Log.d(TAG,"onServiceConnected to profile: " + profile);
@@ -201,6 +209,9 @@ public class HDPtestService extends Service {
 	                    newState == BluetoothHealth.STATE_CHANNEL_CONNECTED) {
 	                if (config.equals(mHealthAppConfig)) {
 	                    mChannelId = channelId;
+	                    Log.d(DTAG,"service:onHealthChannelStateChange -- " +
+	                    		"미연결==>연결로 전환시발생, ReadThread를 호출");
+	                    
 	                    sendMessage(STATUS_CREATE_CHANNEL, RESULT_OK);
 	                    (new ReadThread(fd)).start();
 	                } else {
@@ -208,6 +219,8 @@ public class HDPtestService extends Service {
 	                }
 	            } else if (prevState == BluetoothHealth.STATE_CHANNEL_CONNECTING &&
 	                       newState == BluetoothHealth.STATE_CHANNEL_DISCONNECTED) {
+	            	Log.d(DTAG,"service:onhealthChannelStateChange --"
+	            			+ "연결 ==> 미연결로 전환시 발생,STATUS_CREATE_CHANNEL,RESULT_FAIL");
 	                sendMessage(STATUS_CREATE_CHANNEL, RESULT_FAIL);
 	            } else if (newState == BluetoothHealth.STATE_CHANNEL_DISCONNECTED) {
 	            	Log.d(TAG, "I'm in State Channel Disconnected.");
@@ -238,7 +251,7 @@ public class HDPtestService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent,int flags,int startId){
-		Log.d(TAG, "HDPtestService is running");
+		Log.d(DTAG, "service:onStartCommand()");
 		return START_STICKY;
 	}
 	
@@ -246,30 +259,33 @@ public class HDPtestService extends Service {
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
+		Log.d(DTAG,"service:onBind()");
 		return mMessenger.getBinder();
 	}
 	
 	// 헬스앱(HDPtestService)을 BluetoothHealth 의 API함수를 이용하여 등록한다. 
 	// mHealthCallback 은 앱의 등록해제와 채널의 등록해제를 제어하는 callback 함수
 	private void registerApp(int dataType){
+		Log.d(DTAG,"service:registerApp():BluetoothHealth.registerSinkAppConfiguration()");
 		mBluetoothHealth.registerSinkAppConfiguration(TAG, dataType, mHealthCallback);
 	}
 	
 	// 헬스앱(HDPtestService)를 등록해제한다.
 	private void unregisterApp(){
+		Log.d(DTAG,"service:unregisterApp():Bluetoothhealth.unregisterAppConfiguration()");
 		mBluetoothHealth.unregisterAppConfiguration(mHealthAppConfig);
 	}
 	
 	// BluetoothDevice(원격 블루투스 장치, 즉 헬스디바이스장치)와 BluetoothHealth의 API
 	// 를 이용하여 등록한다.
 	private void connectChannel(){
-		Log.i(TAG,"connectChannel()");
+		Log.d(DTAG,"service:connectChannel()");
 		mBluetoothHealth.connectChannelToSource(mDevice, mHealthAppConfig);
 	}
 	
 	// 연결된 BluetoothDevice를 등록해제 한다. 
 	private void disconnectChannel(){
-		Log.i(TAG,"disconnectChannel()");
+		Log.d(DTAG,"service:disconnectChannel()");
 		mBluetoothHealth.disconnectChannel(mDevice, mHealthAppConfig, mChannelId);
 	}
 	

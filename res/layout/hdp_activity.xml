@@ -7,7 +7,7 @@
 
     <TextView android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/app_registration"
+        android:text="@string/widget_app_registration"
         android:textSize="20sp"
         android:textStyle="bold" />
     
@@ -22,14 +22,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="300dp"
-            android:text="@string/register" />
+            android:text="@string/widget_register" />
 
         <Button
             android:id="@+id/button_unregister_app"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="300dp"
-            android:text="@string/unregister" />
+            android:text="@string/widget_unregister" />
 
     </LinearLayout>
 
@@ -43,7 +43,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/connection_state"
+            android:text="@string/widget_connection_state"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -57,16 +57,36 @@
             android:id="@+id/connect_ind"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/disconnected"
-            android:textSize="18sp" />
+            android:text="@string/device_disconnected"
+            android:textSize="18sp" 
+            android:textStyle="bold"/>
 
     </LinearLayout>
-    
-    <View 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_app_state" />
+
+        <TextView
+            android:id="@+id/app_status_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/status_ready"/>
+
+    </LinearLayout>
+
+    <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#000000"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginTop="5dp"
+        android:background="#000000" />
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -83,7 +103,7 @@
                 android:id="@+id/status_msg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/status_msg" />
+                android:text="@string/widget_data_status" />
 
         </LinearLayout>
     </ScrollView>
