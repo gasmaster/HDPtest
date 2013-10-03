@@ -59,6 +59,11 @@ public class HDPtestService extends Service {
 	public static final int RECEIVED_DIA = 501;
 	public static final int RECEIVED_PUL = 502;
 	
+	//packet 을 보여주기위한 메시지
+	public static final int RECEIVED_PACK1 = 600;
+	public static final int RECEIVED_PACK2 = 601;
+	public static final int RECEIVED_PACK3 = 602;
+	
 	// 블루투스 장치을 사용하기 위한 안드로이드 객체들
 	private BluetoothHealthAppConfiguration mHealthAppConfig;
 	private BluetoothAdapter mBluetoothAdapter;
@@ -248,6 +253,19 @@ public class HDPtestService extends Service {
 			e.printStackTrace();
 		}
 	}
+	private void sendMessageWithString(int what,String str){
+		if(mClient == null){
+			Log.d(TAG,"No client registered.");
+			return;
+		}
+		
+		try{
+			mClient.send(Message.obtain(null,what,str));
+		}catch(RemoteException e){
+			e.printStackTrace();
+		}
+	}
+	
 	
 	@Override
 	public int onStartCommand(Intent intent,int flags,int startId){
@@ -339,6 +357,7 @@ public class HDPtestService extends Service {
         public void run() {
             FileInputStream fis = new FileInputStream(mFd.getFileDescriptor());
             byte data[] = new byte[300];
+            
             try {
                 while(fis.read(data) > -1) {
                     // At this point, the application can pass the raw data to a parser that
@@ -350,9 +369,14 @@ public class HDPtestService extends Service {
                 		Log.i(TAG, test);
 	                	if(data[0] == (byte) 0xE2){
 	                		Log.i(TAG, "E2");
+	                		
 	                		//data_AR
 	                		count = 1;
-	                		(new WriteThread(mFd)).start();
+	                		
+	                		sendMessageWithString(RECEIVED_PACK1,
+	                				test.substring(0,data[3]));
+	                		Log.i(DTAG,data[3]);
+	                		(new WriteThread(mFd)).start();;
 	                		try {
 								sleep(100);
 							} catch (InterruptedException e) {
@@ -367,6 +391,8 @@ public class HDPtestService extends Service {
 	                		//work for legacy device...
 	                		if (data[18] == (byte) 0x0d && data[19] == (byte) 0x1d)  //fixed report
 	                		{
+	                			sendMessageWithString(RECEIVED_PACK2,
+	                					test.substring(0, data[3]));
 	                			count = 3; 
 	                			//set invoke id so get correct response
 	                			invoke = new byte[] { data[6], data[7] };
@@ -421,6 +447,8 @@ public class HDPtestService extends Service {
 	                	}
 	                	else if (data[0] == (byte) 0xE4)
 	                	{
+	                		sendMessageWithString(RECEIVED_PACK3,
+	                				test.substring(0, data[3]));
 	                		count = 4;
 	                		(new WriteThread(mFd)).start();
 //	                		sendMessage();

@@ -3,7 +3,7 @@
     <string name="app_name">HDPtest</string>
     
 	<!-- 현재 애플리케이션의 상태를 표현하기 위한 문자열 -->
-    <string name="status_ready">측정하기 위해서 앱을 등록하세요.</string>
+    <string name="status_ready">측정하기 위해서 측정준비 버튼을 누르세요.</string>
     <string name="status_reg">앱등록 결과: %d (0 :성공, -1 :실패)</string>
     <string name="status_unreg">앱등록해제: %d (0 :성공, -1 :실패)</string>
     <string name="status_create_channel">채널연결생성 결과: %d (0 :성공, -1 :실패)</string>
@@ -29,7 +29,7 @@
     <string name="bluetooth_not_available">블루투스 장치가 사용불가능합니다.</string>
 
 	
-	<!--  기타 정리중.. -->
+	<!--  기타 .. -->
 	<string name="dialog_select_device">장치를 선택하세요</string>
 	<string name="ok">OK</string>
 </resources>

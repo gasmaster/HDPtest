@@ -18,8 +18,14 @@ public final class R {
         public static final int button_register_app=0x7f060000;
         public static final int button_unregister_app=0x7f060001;
         public static final int connect_ind=0x7f060003;
+        public static final int packet_c1e2=0x7f060009;
+        public static final int packet_c2e7=0x7f06000b;
+        public static final int packet_c3e4=0x7f06000d;
         public static final int scrollView=0x7f060006;
         public static final int space=0x7f060002;
+        public static final int space1=0x7f060008;
+        public static final int space2=0x7f06000a;
+        public static final int space3=0x7f06000c;
         public static final int status_msg=0x7f060007;
         public static final int textView1=0x7f060004;
     }

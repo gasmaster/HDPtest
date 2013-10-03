@@ -9,7 +9,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -49,6 +48,11 @@ public class HDPtestActivity extends Activity {
 	// widget 요소
 	private TextView mConnectIndicator; // 연결상태표시  view(connect_ind)
 	private TextView mStatusMessage; // 현재상태표시 view(status_msg)
+	private TextView mAppStatusMessage; // 현재 측정 진행상태를 표시하기위한 view
+	
+	private TextView mPacket1;
+	private TextView mPacket2;
+	private TextView mPacket3;
 	
 	
 	
@@ -68,36 +72,47 @@ public class HDPtestActivity extends Activity {
 			switch(msg.what){
 			// 애플리케이션이 서비스에 등록
 			case HDPtestService.STATUS_HEALTH_APP_REG:
-				mStatusMessage.setText(String.format(
+				mAppStatusMessage.setText(String.format(
 						mRes.getString(R.string.status_reg), msg.arg1));
 				break;
 			// 애플리케이션을 등록해제
 			case HDPtestService.STATUS_HEALTH_APP_UNREG:
-				mStatusMessage.setText(String.format(
+				mAppStatusMessage.setText(String.format(
 						mRes.getString(R.string.status_unreg), msg.arg1));
 				break;
 			// Helath Device로부터 데이터 리딩	
 			case HDPtestService.STATUS_READ_DATA:
-				mStatusMessage.setText(mRes.getString(R.string.status_read_data));
+				mAppStatusMessage.setText(mRes.getString(R.string.status_read_data));
 				break;
 			// Health Device로부터 방은 데이터 리딩 완료
 			case HDPtestService.STATUS_READ_DATA_DONE:
-				mStatusMessage.setText(mRes.getString(R.string.status_read_data_done));
+				mAppStatusMessage.setText(mRes.getString(R.string.status_read_data_done));
 				break;
 			// Health Device와의 채널간 연결완료
 			case HDPtestService.STATUS_CREATE_CHANNEL:
-				mStatusMessage.setText(String.format(mRes.getString(
+				mAppStatusMessage.setText(String.format(mRes.getString(
 						R.string.status_create_channel), 
 						msg.arg1));
 				mConnectIndicator.setText(R.string.device_connected);
 				break;
 				
 			case HDPtestService.STATUS_DESTROY_CHANNEL:
-				mStatusMessage.setText(String.format(mRes.getString(
+				mAppStatusMessage.setText(String.format(mRes.getString(
 						R.string.status_destroy_channel), 
 						msg.arg1));
 				mConnectIndicator.setText(R.string.device_disconnected);
 				break;
+				
+				
+			case HDPtestService.RECEIVED_PACK1:
+				mPacket1.setText((String)msg.obj);
+				break;
+			case HDPtestService.RECEIVED_PACK2:
+				mPacket2.setText((String)msg.obj);
+				break;
+			case HDPtestService.RECEIVED_PACK3:
+				mPacket3.setText((String)msg.obj);
+				break;	
 				
 			case HDPtestService.RECEIVED_SYS:
 				int sys = msg.arg1;
@@ -141,6 +156,10 @@ public class HDPtestActivity extends Activity {
 		setContentView(R.layout.hdp_activity);
 		mConnectIndicator = (TextView)findViewById(R.id.connect_ind);
 		mStatusMessage = (TextView)findViewById(R.id.status_msg);
+		mAppStatusMessage = (TextView)findViewById(R.id.app_status_msg);
+		mPacket1 = (TextView)findViewById(R.id.packet_c1e2);
+		mPacket2 = (TextView)findViewById(R.id.packet_c2e7);
+		mPacket3 = (TextView)findViewById(R.id.packet_c3e4);
 		mRes = getResources();
 		mHealthServiceBound = false;
 		
@@ -291,7 +310,7 @@ public class HDPtestActivity extends Activity {
 				BluetoothDevice Device = 
 						intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 				// 발견된 디바이스후 연결?? Dialog?
-				mStatusMessage.setText(Device.getName());
+				//mStatusMessage.setText(Device.getName());
 				if(Device.getName().equals("A&D BP UA-767PBT-C"))
 				{ 	
 					Toast.makeText(getApplicationContext(), 
